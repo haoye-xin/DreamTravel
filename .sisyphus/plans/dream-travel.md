@@ -174,9 +174,8 @@ app/src/main/java/com/dreamtravel/
 │   ├── DwellTimerUseCase.kt            # 驻留计时器
 │   └── ReminderSchedulerUseCase.kt     # 提醒调度
 ├── service/
-│   ├── LocationService.kt              # 前台 Service（持续定位）
+│   ├── LocationService.kt              # 前台 Service（持续定位 + 驻留检查协程）
 │   ├── GeofenceWakeReceiver.kt         # 唤醒围栏广播接收器
-│   ├── DwellCheckWorker.kt             # WorkManager 周期检查
 │   └── ReminderAlarmWorker.kt          # 周期性重提醒 Worker
 ├── notification/
 │   ├── NotificationHelper.kt           # 通知构建与发送
@@ -309,36 +308,39 @@ app/src/main/java/com/dreamtravel/
 - [ ] Geofence ENTER 事件 → 启动 DwellCheckWorker
 - [ ] Geofence EXIT 事件 → 取消 DwellCheckWorker
 - [ ] **关键边界情况**：Place 激活时用户可能已在围栏内（如在家添加"北京"的梦想）：
-  - 注册 Geofence 后立即用 `GeofencingClient` 的 `getCurrentLocation` 做一次初始检测
-  - 若当前位置在城市唤醒圈内 → 直接启动 DwellCheckWorker
+  - 注册 Geofence 后立即用 `FusedLocationProviderClient.getCurrentLocation()` 做一次初始检测
+  - 若当前位置在城市唤醒圈内 → 直接启动驻留检查协程
   - 避免「人在城里但收不到提醒」的漏洞
 - [ ] 验证：mock GPS 进入城市唤醒圈 → DwellCheckWorker 启动；在家添加本地城市梦想 → 同样启动
 
-**T2.4 - 驻留检查 Worker**
-- [ ] 创建 `service/DwellCheckWorker.kt`（PeriodicWorkRequest，2分钟周期）
-- [ ] 每次执行：
+**T2.4 - 驻留检查（LocationService 协程循环）**
+- [ ] 在 `service/LocationService.kt` 中实现驻留检查协程循环
+
+> **v1.1 修正**：原使用 WorkManager PeriodicWorkRequest（2分钟），但 WorkManager 最小间隔为 15 分钟。改为在 ForegroundService 内部用协程循环实现。
+
+- [ ] 每次循环：
   1. 获取当前位置（FusedLocationProviderClient）
   2. 逆地理编码（高德 ReGeocode API）→ 获取城市名
   3. 比对当前城市名与目标城市名（忽略「市/州」后缀差异）
   4. 如果在目标城市 → 累加驻留计数器
   5. 如果不在目标城市 → 重置驻留计数器（容差 5 分钟短时离开）
   6. 驻留时间 ≥ dwellMinutes → 触发通知
-- [ ] **Worker 停止策略**（关键：防止通知后继续计时而误触发）：
-  - 通知触发后 → 停止**本周期** Worker
-  - 用户选择「已完成」或「路过」→ 永久停止该城市的 DwellCheckWorker
-  - 用户选择「进行中」→ 重启 Worker（用于监测用户是否仍在城内以便重提醒）
-  - 用户离开唤醒圈（EXIT 事件）→ 取消 DwellCheckWorker + 取消重提醒
+- [ ] **协程停止策略**（关键：防止通知后继续计时而误触发）：
+  - 通知触发后 → 取消当前驻留协程
+  - 用户选择「已完成」或「路过」→ 永久停止该城市的驻留检查
+  - 用户选择「进行中」→ 重启驻留协程（用于监测用户是否仍在城内以便重提醒）
+  - 用户离开唤醒圈（EXIT 事件）→ 取消驻留协程 + 取消重提醒
 - [ ] GPS 不可用时 fallback 到网络定位（NETWORK_PROVIDER）
 - [ ] GPS 精度 > 100m 时跳过本次检查
 - [ ] 离开 ≤ 5 分钟又回到同城 → 继续计时（不重置）
 - [ ] 验证：模拟在城内 30 分钟 → 通知触发；中途离开 → 计时重置
 
-**T2.5 - 前台定位 Service**
-- [ ] 创建 `service/LocationService.kt`（Foreground Service）
-- [ ] 显示持久通知：「DreamTravel 正在检测你的位置」
-- [ ] 协调 Geofence + DwellCheckWorker 的生命周期
-- [ ] 电池优化：当所有 Places 停用或用户远离所有唤醒圈时，停止 Service
-- [ ] 设备重启后自动恢复（BOOT_COMPLETED 广播）
+**T2.5 - 前台定位 Service（协调层）**
+- [ ] 在 `service/LocationService.kt` 实现完整生命周期：
+  - [ ] 显示持久通知：「DreamTravel 正在检测你的位置」
+  - [ ] 协调 Geofence 注册/注销 + 驻留检查协程的启停
+  - [ ] 电池优化：当所有 Places 停用或用户远离所有唤醒圈时，停止 Service
+  - [ ] 设备重启后自动恢复（BOOT_COMPLETED 广播）
 - [ ] 验证：Service 在后台持续运行，不被系统杀死
 
 ---
