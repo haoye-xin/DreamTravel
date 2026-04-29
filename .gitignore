@@ -1,0 +1,41 @@
+# Android
+*.apk
+*.aab
+*.dex
+*.class
+bin/
+gen/
+out/
+.gradle/
+build/
+local.properties
+*.iml
+.idea/
+*.hprof
+
+# Firebase / API keys (keep google-services.json in repo for open-source, but NEVER commit real keys)
+# google-services.json  # Uncomment for private repos
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+*.log
+
+# Android Studio
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Gradle
+gradle-app.setting
+!gradle-wrapper.jar
+.gradletasknamecache
+
+# Kotlin
+*.kotlin_module
+
+# ProGuard
+proguard/
