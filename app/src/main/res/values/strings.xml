@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DreamTravel</string>
+    <string name="channel_dream_reminder">梦想提醒</string>
+    <string name="channel_dream_reminder_desc">当你到达梦想城市时发送提醒</string>
+    <string name="channel_location_service">定位服务</string>
+    <string name="channel_location_service_desc">DreamTravel 正在后台检测你的位置</string>
+    <string name="onboarding_welcome">记录梦想之地\n不再错过想做的事</string>
+    <string name="onboarding_location">DreamTravel 需要在后台获取位置\n才能在你到达时提醒</string>
+    <string name="onboarding_permission">请允许位置权限\n让梦想提醒准时送达</string>
+    <string name="btn_allow">允许</string>
+    <string name="btn_later">稍后再说</string>
+    <string name="btn_skip">跳过</string>
+    <string name="btn_next">下一步</string>
+    <string name="btn_done">开始使用</string>
+    <string name="empty_places">还没有梦想之地\n点击 + 添加第一个吧</string>
+    <string name="empty_todos">还没有待办事项\n点击 + 添加吧</string>
+    <string name="hint_city_search">搜索城市...</string>
+    <string name="label_dwell_time">驻留时间</string>
+    <string name="label_todo_title">想做什么？</string>
+    <string name="label_todo_notes">备注（可选）</string>
+    <string name="delete_confirm">确定要删除这个梦想之地吗？</string>
+    <string name="notification_title">你在 %s！</string>
+    <string name="notification_more">还有 %d 项...</string>
+    <string name="notification_remind_count">已提醒 %d 次</string>
+    <string name="action_completed">已完成</string>
+    <string name="action_in_progress">进行中</string>
+    <string name="action_passing">路过</string>
+    <string name="status_pending">待完成</string>
+    <string name="status_in_progress">进行中</string>
+    <string name="status_completed">已完成</string>
+    <string name="status_skipped">已路过</string>
+    <string name="location_notice">DreamTravel 正在检测你的位置</string>
+    <string name="permission_denied_background">提醒功能需要后台定位，你可以在设置中随时开启</string>
+    <string name="go_to_settings">前往设置</string>
+    <string name="battery_optimization_notice">免除电池优化可以让提醒更及时</string>
+    <string name="privacy_policy">隐私政策</string>
+</resources>
