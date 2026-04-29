@@ -1,6 +1,7 @@
 package com.dreamtravel.service
 
 import android.content.Context
+import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.dreamtravel.data.model.TodoStatus
 import com.dreamtravel.data.repository.DreamRepository
@@ -9,6 +10,7 @@ import com.dreamtravel.notification.NotificationHelper
 import com.dreamtravel.util.Constants
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.flow.first
 import java.util.concurrent.TimeUnit
 
 /**
@@ -16,6 +18,7 @@ import java.util.concurrent.TimeUnit
  * 当用户选择「进行中」后，按 remindIntervalMinutes 间隔发送重提醒。
  * 使用 WorkManager 因为间隔至少 30 分钟（≥ 15 分钟最小限制）。
  */
+@HiltWorker
 class ReminderAlarmWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted workerParams: WorkerParameters,
@@ -29,9 +32,8 @@ class ReminderAlarmWorker @AssistedInject constructor(
         val placeName = inputData.getString(KEY_PLACE_NAME) ?: return Result.failure()
 
         // 检查是否有仍处于 IN_PROGRESS 的 todo
-        val todos = repository.getTodos(placeId)
-        val pendingTodos = kotlinx.coroutines.flow.first { true }
-            .filter { it.status == TodoStatus.IN_PROGRESS }
+        val todos = repository.getTodos(placeId).first()
+        val pendingTodos = todos.filter { it.status == TodoStatus.IN_PROGRESS }
 
         if (pendingTodos.isEmpty()) {
             return Result.success() // 所有已完成，停止

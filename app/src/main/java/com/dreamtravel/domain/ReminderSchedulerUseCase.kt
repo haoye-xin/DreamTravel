@@ -10,6 +10,7 @@ import com.dreamtravel.notification.NotificationHelper
 import com.dreamtravel.data.repository.DreamRepository
 import com.dreamtravel.util.Constants
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 class ReminderSchedulerUseCase @Inject constructor(
@@ -23,11 +24,10 @@ class ReminderSchedulerUseCase @Inject constructor(
      * 当驻留时间到达阈值时调用。
      */
     suspend fun triggerReminder(placeId: String, placeName: String) {
-        val todos = repository.getTodos(placeId)
-        val pendingTodos = todos.let { flow ->
-            // Collect one emission
-            kotlinx.coroutines.flow.first { true }
-        }.filter { it.status == TodoStatus.PENDING || it.status == TodoStatus.IN_PROGRESS }
+        val allTodos = repository.getTodos(placeId).first()
+        val pendingTodos = allTodos.filter {
+            it.status == TodoStatus.PENDING || it.status == TodoStatus.IN_PROGRESS
+        }
 
         if (pendingTodos.isEmpty()) return
 
