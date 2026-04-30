@@ -2,9 +2,11 @@ package com.dreamtravel.ui.onboarding
 
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -57,6 +59,9 @@ class OnboardingFragment : Fragment(R.layout.fragment_onboarding) {
                 binding.btnNext.text = if (position == onboardingPages.size - 1) "允许" else "下一步"
             }
         })
+
+        // Privacy policy link
+        binding.tvPrivacy.setOnClickListener { showPrivacyDialog() }
     }
 
     private fun requestPermissions() {
@@ -68,6 +73,15 @@ class OnboardingFragment : Fragment(R.layout.fragment_onboarding) {
         val prefs = requireContext().getSharedPreferences(PREFS_NAME, 0)
         prefs.edit().putBoolean(KEY_ONBOARDING_DONE, true).apply()
         findNavController().navigate(R.id.action_onboarding_to_placeList)
+    }
+
+    private fun showPrivacyDialog() {
+        val content = Html.fromHtml(getString(R.string.privacy_policy_content), Html.FROM_HTML_MODE_LEGACY)
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.privacy_policy_title)
+            .setMessage(content)
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
     }
 
     override fun onDestroyView() {

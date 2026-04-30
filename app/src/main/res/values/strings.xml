@@ -35,4 +35,22 @@
     <string name="go_to_settings">前往设置</string>
     <string name="battery_optimization_notice">免除电池优化可以让提醒更及时</string>
     <string name="privacy_policy">隐私政策</string>
+    <string name="privacy_policy_title">隐私声明</string>
+    <string name="privacy_policy_content">DreamTravel（以下简称「本应用」）重视你的隐私。\n\n
+\u2003\u2003<b>数据收集</b>\n
+\u2003\u2003• 位置信息：用于检测你是否到达梦想城市，仅在后台检测时使用\n
+\u2003\u2003• 设备标识符：用于匿名用户识别和云端数据备份\n\n
+\u2003\u2003<b>数据存储</b>\n
+\u2003\u2003• 你的梦想城市和待办事项优先存储在本地设备\n
+\u2003\u2003• 开启云端备份后，数据通过 Firebase 加密传输\n\n
+\u2003\u2003<b>数据使用</b>\n
+\u2003\u2003• 位置数据仅用于城市到达检测，不会用于广告或其他目的\n
+\u2003\u2003• 你不会收到垃圾推送，所有提醒都基于你设定的梦想\n\n
+\u2003\u2003<b>数据共享</b>\n
+\u2003\u2003• 本应用不向任何第三方出售或共享你的个人数据\n
+\u2003\u2003• 高德地图 SDK 仅用于位置服务，遵循高德隐私政策\n\n
+\u2003\u2003<b>你的权利</b>\n
+\u2003\u2003• 随时在系统设置中撤回位置权限\n
+\u2003\u2003• 停止使用本应用即停止所有数据收集\n\n
+\u2003\u2003如有疑问，请联系开发者。</string>
 </resources>
