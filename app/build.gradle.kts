@@ -21,7 +21,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // 高德地图 API Key（需替换为实际 Key）
-        manifestPlaceholders["AMAP_API_KEY"] = "YOUR_AMAP_API_KEY"
+        manifestPlaceholders["AMAP_API_KEY"] = "ffacde256dac5ff20525546a26cc33f9"
     }
 
     buildTypes {
@@ -95,9 +95,8 @@ dependencies {
     // Play Services Location
     implementation("com.google.android.gms:play-services-location:21.1.0")
 
-    // 高德地图 SDK (3D 地图 + 搜索)
-    implementation("com.amap.api:3dmap:10.0.600")
-    implementation("com.amap.api:search:9.7.1")
+    // 高德地图 SDK（统一聚合包：3D 地图 + 定位 + 搜索，避免重复类冲突）
+    implementation("com.amap.api:3dmap-location-search:10.0.700_loc6.4.5_sea9.7.2")
 
     // ViewPager2 (Onboarding)
     implementation("androidx.viewpager2:viewpager2:1.0.0")
