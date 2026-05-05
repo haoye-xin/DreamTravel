@@ -11,6 +11,7 @@ data class Place(
     val dwellMinutes: Int,
     val isActive: Boolean,
     val createdAt: Long,
+    val updatedAt: Long,
     val pendingCount: Int = 0,
     val totalCount: Int = 0
 )
@@ -24,6 +25,7 @@ fun PlaceEntity.toDomain(pendingCount: Int = 0, totalCount: Int = 0): Place = Pl
     dwellMinutes = dwellMinutes,
     isActive = isActive,
     createdAt = createdAt,
+    updatedAt = updatedAt,
     pendingCount = pendingCount,
     totalCount = totalCount
 )
@@ -36,5 +38,6 @@ fun Place.toEntity(): PlaceEntity = PlaceEntity(
     longitude = longitude,
     dwellMinutes = dwellMinutes,
     isActive = isActive,
-    createdAt = createdAt
+    createdAt = createdAt,
+    updatedAt = updatedAt
 )

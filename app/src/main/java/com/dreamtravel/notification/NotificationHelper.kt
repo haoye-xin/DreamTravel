@@ -8,6 +8,7 @@ import android.content.Context
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.dreamtravel.R
+import com.dreamtravel.data.model.Todo
 import com.dreamtravel.util.Constants
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -52,32 +53,42 @@ class NotificationHelper @Inject constructor(
     }
 
     /**
-     * 发送梦想提醒通知（含三个 Action 按钮）
+     * 发送梦想提醒通知（含三个 Action 按钮）。
+     * 当只有一个待办时，Action 精确到该待办；多个时回退到地点级。
      */
     fun showReminder(
         placeId: String,
         placeName: String,
-        todos: List<String>,
+        todos: List<Todo>,
         completedPendingIntent: PendingIntent,
         inProgressPendingIntent: PendingIntent,
-        passingPendingIntent: PendingIntent
+        passingPendingIntent: PendingIntent,
+        contentPendingIntent: PendingIntent
     ) {
         val title = String.format(
             context.getString(R.string.notification_title),
             placeName
         )
 
+        val todoTitles = todos.map { it.title }
+
         // 构建内容文本：最多 3 行
         val contentText = when {
-            todos.size <= 3 -> todos.joinToString("\n") { "• $it" }
-            else -> todos.take(3).joinToString("\n") { "• $it" } +
+            todoTitles.size <= 3 -> todoTitles.joinToString("\n") { "• $it" }
+            else -> todoTitles.take(3).joinToString("\n") { "• $it" } +
                     "\n" + String.format(
                 context.getString(R.string.notification_more),
-                todos.size - 3
+                todoTitles.size - 3
             )
         }
 
-        val bigText = todos.joinToString("\n") { "• $it" }
+        // BigTextStyle：编号展示所有待办
+        val bigText = buildString {
+            todoTitles.forEachIndexed { index, title ->
+                if (index > 0) append("\n")
+                append("${index + 1}. $title")
+            }
+        }
 
         val builder = NotificationCompat.Builder(context, Constants.CHANNEL_DREAM_REMINDER)
             .setSmallIcon(android.R.drawable.ic_dialog_map)
@@ -87,6 +98,7 @@ class NotificationHelper @Inject constructor(
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setContentIntent(contentPendingIntent)
             .addAction(
                 android.R.drawable.ic_menu_edit,
                 context.getString(R.string.action_completed),

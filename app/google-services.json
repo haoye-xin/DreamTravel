@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "96694362893",
+    "project_id": "dreamtravel-bd945",
+    "storage_bucket": "dreamtravel-bd945.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:96694362893:android:b75a5f631a0022cd1ec644",
+        "android_client_info": {
+          "package_name": "com.dreamtravel"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZFzMvwzrBo9ywd4UYcJwzGZNoL5wjmT4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

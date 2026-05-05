@@ -15,8 +15,8 @@ android {
         applicationId = "com.dreamtravel"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -95,8 +95,9 @@ dependencies {
     // Play Services Location
     implementation("com.google.android.gms:play-services-location:21.1.0")
 
-    // 高德地图 SDK（统一聚合包：3D 地图 + 定位 + 搜索，避免重复类冲突）
-    implementation("com.amap.api:3dmap-location-search:10.0.700_loc6.4.5_sea9.7.2")
+    // 高德地图 SDK（使用兼容版本避免重复类冲突）
+    implementation("com.amap.api:3dmap:10.0.600")
+    implementation("com.amap.api:search:9.4.0")
 
     // ViewPager2 (Onboarding)
     implementation("androidx.viewpager2:viewpager2:1.0.0")
@@ -111,3 +112,6 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 }
+
+// 高德 SDK: 3dmap:10.0.600 + search:9.4.0 为兼容版本对，无重复类冲突
+// 保留 JNI libs pickFirst 处理可能的 SO 文件冲突

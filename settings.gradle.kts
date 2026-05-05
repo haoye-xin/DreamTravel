@@ -5,12 +5,12 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-dependencyResolution {
-    @Suppress("UnstableApiUsage")
+@Suppress("UnstableApiUsage")
+dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        // 高德地图 Maven 仓库
+        // 高德地图 SDK Maven 仓库
         maven { url = uri("https://maven.aliyun.com/repository/public") }
     }
 }

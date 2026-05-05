@@ -14,6 +14,11 @@ class OnboardingPagerAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PageViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(android.R.layout.simple_list_item_1, parent, false)
+        // ViewPager2 要求每个 page 填满整个容器（match_parent），系统布局默认是 wrap_content
+        view.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
         return PageViewHolder(view)
     }
 

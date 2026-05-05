@@ -22,11 +22,18 @@
         android:inputType="textMultiLine"
         android:minLines="2" />
 
+    <Spinner
+        android:id="@+id/spinnerRemindInterval"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:prompt="@string/label_remind_interval" />
+
     <Button
         android:id="@+id/btnSaveTodo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="保存" />
+        android:text="@string/btn_save" />
 
 </LinearLayout>

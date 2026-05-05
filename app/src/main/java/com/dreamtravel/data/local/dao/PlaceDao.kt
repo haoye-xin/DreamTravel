@@ -30,4 +30,11 @@ interface PlaceDao {
 
     @Query("UPDATE places SET isActive = :isActive WHERE id = :placeId")
     suspend fun setPlaceActive(placeId: String, isActive: Boolean)
+
+    @Transaction
+    suspend fun mergePlaces(places: List<PlaceEntity>) {
+        for (place in places) {
+            insertPlace(place)
+        }
+    }
 }

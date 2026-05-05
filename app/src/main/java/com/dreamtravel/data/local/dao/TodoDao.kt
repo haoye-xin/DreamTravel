@@ -25,6 +25,9 @@ interface TodoDao {
     @Delete
     suspend fun deleteTodo(todo: TodoEntity)
 
+    @Query("DELETE FROM todos WHERE id = :todoId")
+    suspend fun deleteTodoById(todoId: String)
+
     @Query("UPDATE todos SET status = :status, completedAt = :completedAt WHERE id = :todoId")
     suspend fun updateTodoStatus(todoId: String, status: String, completedAt: Long? = null)
 
@@ -36,4 +39,17 @@ interface TodoDao {
 
     @Query("SELECT COUNT(*) FROM todos WHERE placeId = :placeId AND status != 'COMPLETED' AND status != 'SKIPPED'")
     suspend fun countPendingTodos(placeId: String): Int
+
+    @Query("SELECT * FROM todos WHERE placeId = :placeId AND status IN ('PENDING', 'IN_PROGRESS') ORDER BY createdAt DESC")
+    fun getActiveTodosByPlace(placeId: String): Flow<List<TodoEntity>>
+
+    @Query("SELECT * FROM todos WHERE placeId = :placeId AND status IN ('COMPLETED', 'SKIPPED') ORDER BY createdAt DESC")
+    fun getTodoHistoryByPlace(placeId: String): Flow<List<TodoEntity>>
+
+    @Transaction
+    suspend fun mergeTodos(todos: List<TodoEntity>) {
+        for (todo in todos) {
+            insertTodo(todo)
+        }
+    }
 }

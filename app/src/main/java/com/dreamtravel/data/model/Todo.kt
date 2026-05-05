@@ -22,7 +22,8 @@ data class Todo(
     val remindIntervalMinutes: Int,
     val remindCount: Int,
     val createdAt: Long,
-    val completedAt: Long?
+    val completedAt: Long?,
+    val updatedAt: Long
 )
 
 fun TodoEntity.toDomain(): Todo = Todo(
@@ -34,7 +35,8 @@ fun TodoEntity.toDomain(): Todo = Todo(
     remindIntervalMinutes = remindIntervalMinutes,
     remindCount = remindCount,
     createdAt = createdAt,
-    completedAt = completedAt
+    completedAt = completedAt,
+    updatedAt = updatedAt
 )
 
 fun Todo.toEntity(): TodoEntity = TodoEntity(
@@ -46,5 +48,6 @@ fun Todo.toEntity(): TodoEntity = TodoEntity(
     remindIntervalMinutes = remindIntervalMinutes,
     remindCount = remindCount,
     createdAt = createdAt,
-    completedAt = completedAt
+    completedAt = completedAt,
+    updatedAt = updatedAt
 )

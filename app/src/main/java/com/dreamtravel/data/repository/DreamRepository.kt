@@ -18,9 +18,15 @@ interface DreamRepository {
 
     /** Todos */
     fun getTodos(placeId: String): Flow<List<Todo>>
+    fun getActiveTodos(placeId: String): Flow<List<Todo>>
+    fun getTodoHistory(placeId: String): Flow<List<Todo>>
+    suspend fun getTodoById(todoId: String): Todo?
     suspend fun addTodo(todo: Todo)
+    suspend fun updateTodo(todo: Todo)
     suspend fun updateTodoStatus(todoId: String, newStatus: TodoStatus)
     suspend fun updateAllTodosStatus(placeId: String, newStatus: TodoStatus)
+    suspend fun deleteTodo(todoId: String)
     suspend fun incrementRemindCount(todoId: String)
     suspend fun countPendingTodos(placeId: String): Int
+    suspend fun syncFromCloud()
 }

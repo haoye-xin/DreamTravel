@@ -76,9 +76,9 @@ class LocationService : Service() {
 
             if (transition == Geofence.GEOFENCE_TRANSITION_ENTER ||
                 transition == Geofence.GEOFENCE_TRANSITION_DWELL) {
-                instance?.onGeofenceEnter(triggeringGeofences)
+                instance?.onGeofenceEnter(triggeringGeofences ?: emptyList())
             } else if (transition == Geofence.GEOFENCE_TRANSITION_EXIT) {
-                instance?.onGeofenceExit(triggeringGeofences)
+                instance?.onGeofenceExit(triggeringGeofences ?: emptyList())
             }
         }
     }
@@ -182,7 +182,8 @@ class LocationService : Service() {
                         longitude = place.longitude,
                         dwellMinutes = place.dwellMinutes,
                         isActive = place.isActive,
-                        createdAt = place.createdAt
+                        createdAt = place.createdAt,
+                        updatedAt = place.updatedAt
                     )
                 )
 
@@ -264,7 +265,8 @@ class LocationService : Service() {
                     longitude = placeEntity.longitude,
                     dwellMinutes = placeEntity.dwellMinutes,
                     isActive = placeEntity.isActive,
-                    createdAt = placeEntity.createdAt
+                    createdAt = placeEntity.createdAt,
+                    updatedAt = placeEntity.updatedAt
                 )
 
                 if (cityDetection.isCityMatch(cityName, place)) {

@@ -10,8 +10,8 @@ import com.dreamtravel.data.model.TodoStatus
 import com.dreamtravel.data.remote.FirestoreSyncService
 import io.mockk.*
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Before
@@ -22,6 +22,7 @@ class DreamRepositoryImplTest {
     private lateinit var placeDao: PlaceDao
     private lateinit var todoDao: TodoDao
     private lateinit var firestoreSync: FirestoreSyncService
+    private lateinit var statusManager: com.dreamtravel.util.StatusManager
     private lateinit var repository: DreamRepositoryImpl
 
     private val testPlaceEntity = PlaceEntity(
@@ -44,6 +45,7 @@ class DreamRepositoryImplTest {
         dwellMinutes = 30,
         isActive = true,
         createdAt = 1000L,
+        updatedAt = 1000L,
         pendingCount = 0,
         totalCount = 0
     )
@@ -53,7 +55,8 @@ class DreamRepositoryImplTest {
         placeDao = mockk(relaxed = true)
         todoDao = mockk(relaxed = true)
         firestoreSync = mockk(relaxed = true)
-        repository = DreamRepositoryImpl(placeDao, todoDao, firestoreSync)
+        statusManager = mockk(relaxed = true)
+        repository = DreamRepositoryImpl(placeDao, todoDao, firestoreSync, statusManager)
     }
 
     // ─── Places ──────────────────────────────────────────────
@@ -63,7 +66,7 @@ class DreamRepositoryImplTest {
         coEvery { placeDao.getAllPlaces() } returns flowOf(listOf(testPlaceEntity))
         coEvery { todoDao.countPendingTodos("place-1") } returns 3
 
-        val result = repository.getPlaces().toList(mutableListOf())
+        val result = repository.getPlaces().first()
 
         assertEquals(1, result.size)
         assertEquals("大理", result[0].name)
@@ -74,7 +77,7 @@ class DreamRepositoryImplTest {
     fun `getPlaces handles empty list`() = runTest {
         coEvery { placeDao.getAllPlaces() } returns flowOf(emptyList())
 
-        val result = repository.getPlaces().toList(mutableListOf())
+        val result = repository.getPlaces().first()
 
         assertTrue(result.isEmpty())
     }
@@ -83,7 +86,7 @@ class DreamRepositoryImplTest {
     fun `getActivePlaces returns active places`() = runTest {
         coEvery { placeDao.getActivePlaces() } returns flowOf(listOf(testPlaceEntity))
 
-        val result = repository.getActivePlaces().toList(mutableListOf())
+        val result = repository.getActivePlaces().first()
 
         assertEquals(1, result.size)
         assertEquals("大理", result[0].name)
@@ -113,7 +116,7 @@ class DreamRepositoryImplTest {
         repository.addPlace(testPlace)
 
         coVerify { placeDao.insertPlace(any()) }
-        coVerify { firestoreSync.syncPlaceToFirestore(testPlace) }
+        coVerify { firestoreSync.syncPlaceToFirestore(any()) }
     }
 
     @Test
@@ -121,7 +124,7 @@ class DreamRepositoryImplTest {
         repository.updatePlace(testPlace)
 
         coVerify { placeDao.updatePlace(any()) }
-        coVerify { firestoreSync.syncPlaceToFirestore(testPlace) }
+        coVerify { firestoreSync.syncPlaceToFirestore(any()) }
     }
 
     @Test
@@ -157,7 +160,7 @@ class DreamRepositoryImplTest {
         )
         coEvery { todoDao.getTodosByPlace("place-1") } returns flowOf(listOf(todoEntity))
 
-        val result = repository.getTodos("place-1").toList(mutableListOf())
+        val result = repository.getTodos("place-1").first()
 
         assertEquals(1, result.size)
         assertEquals("逛古城", result[0].title)
@@ -168,7 +171,7 @@ class DreamRepositoryImplTest {
     fun `getTodos handles empty`() = runTest {
         coEvery { todoDao.getTodosByPlace("place-1") } returns flowOf(emptyList())
 
-        val result = repository.getTodos("place-1").toList(mutableListOf())
+        val result = repository.getTodos("place-1").first()
 
         assertTrue(result.isEmpty())
     }
@@ -179,13 +182,14 @@ class DreamRepositoryImplTest {
             id = "todo-1", placeId = "place-1", title = "逛古城",
             notes = "", status = TodoStatus.PENDING,
             remindIntervalMinutes = 1440, remindCount = 0,
-            createdAt = 1000L, completedAt = null
+            createdAt = 1000L, completedAt = null,
+            updatedAt = 1000L
         )
 
         repository.addTodo(todo)
 
         coVerify { todoDao.insertTodo(any()) }
-        coVerify { firestoreSync.syncTodoToFirestore(todo) }
+        coVerify { firestoreSync.syncTodoToFirestore(any()) }
     }
 
     @Test
@@ -195,7 +199,7 @@ class DreamRepositoryImplTest {
         coVerify {
             todoDao.updateTodoStatus(
                 todoId = "todo-1",
-                newStatus = "COMPLETED",
+                status = "COMPLETED",
                 completedAt = match { it != null }
             )
         }
@@ -208,7 +212,7 @@ class DreamRepositoryImplTest {
         coVerify {
             todoDao.updateTodoStatus(
                 todoId = "todo-1",
-                newStatus = "PENDING",
+                status = "PENDING",
                 completedAt = null
             )
         }
@@ -216,6 +220,7 @@ class DreamRepositoryImplTest {
 
     @Test
     fun `updateAllTodosStatus delegates`() = runTest {
+        coEvery { todoDao.getTodosByPlace("place-1") } returns flowOf(emptyList())
         repository.updateAllTodosStatus("place-1", TodoStatus.COMPLETED)
 
         coVerify { todoDao.updateAllTodosStatus("place-1", "COMPLETED") }

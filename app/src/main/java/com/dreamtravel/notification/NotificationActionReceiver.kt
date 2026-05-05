@@ -12,7 +12,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * 处理通知上的三个 Action 按钮点击
+ * 处理通知上的三个 Action 按钮点击。
+ * 支持单待办粒度（EXTRA_TODO_ID）和地点级粒度。
  */
 @AndroidEntryPoint
 class NotificationActionReceiver : BroadcastReceiver() {
@@ -23,9 +24,10 @@ class NotificationActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val placeId = intent.getStringExtra(Constants.EXTRA_PLACE_ID) ?: return
         val action = intent.action ?: return
+        val todoId = intent.getStringExtra(Constants.EXTRA_TODO_ID)
 
         CoroutineScope(Dispatchers.IO).launch {
-            reminderScheduler.handleUserAction(placeId, action)
+            reminderScheduler.handleUserAction(placeId, action, todoId)
         }
     }
 }

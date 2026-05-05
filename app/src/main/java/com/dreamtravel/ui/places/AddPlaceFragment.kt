@@ -3,13 +3,17 @@ package com.dreamtravel.ui.places
 import android.os.Bundle
 import android.view.View
 import android.widget.NumberPicker
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.dreamtravel.R
 import com.dreamtravel.databinding.FragmentAddPlaceBinding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class AddPlaceFragment : Fragment(R.layout.fragment_add_place) {
@@ -27,6 +31,8 @@ class AddPlaceFragment : Fragment(R.layout.fragment_add_place) {
 
         setupNumberPicker()
 
+        observeViewModel()
+
         binding.btnSave.setOnClickListener {
             val cityName = binding.editCityName.text.toString().trim()
             if (cityName.isBlank()) {
@@ -34,16 +40,37 @@ class AddPlaceFragment : Fragment(R.layout.fragment_add_place) {
                 return@setOnClickListener
             }
 
-            // Demo: use default coordinates (大理)
-            // In production, this would use AMap search API
-            viewModel.addPlace(
-                name = cityName,
-                cityCode = null,
-                lat = 25.6,
-                lng = 100.2,
-                dwellMinutes = selectedDwell
-            )
-            findNavController().popBackStack()
+            viewModel.searchAndAddPlace(cityName, selectedDwell)
+        }
+    }
+
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.isSearching.collect { searching ->
+                    binding.btnSave.isEnabled = !searching
+                    binding.btnSave.text = if (searching) getString(R.string.searching_city) else "保存梦想之地"
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.searchError.collect { error ->
+                    if (error != null) {
+                        Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
+                        viewModel.clearSearchError()
+                    }
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.saveComplete.collect {
+                    findNavController().popBackStack()
+                }
+            }
         }
     }
 

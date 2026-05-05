@@ -19,6 +19,17 @@
     <string name="label_dwell_time">驻留时间</string>
     <string name="label_todo_title">想做什么？</string>
     <string name="label_todo_notes">备注（可选）</string>
+    <string name="label_remind_interval">提醒间隔</string>
+    <string name="label_edit_todo">编辑待办</string>
+    <string name="label_add_todo">添加待办</string>
+    <string name="btn_update">更新</string>
+    <string name="btn_save">保存</string>
+    <string name="delete_todo_confirm">确定要删除这个待办事项吗？</string>
+    <string name="remind_interval_30min">30分钟</string>
+    <string name="remind_interval_1h">1小时</string>
+    <string name="remind_interval_6h">6小时</string>
+    <string name="remind_interval_24h">24小时</string>
+    <string name="remind_interval_48h">48小时</string>
     <string name="delete_confirm">确定要删除这个梦想之地吗？</string>
     <string name="notification_title">你在 %s！</string>
     <string name="notification_more">还有 %d 项...</string>
@@ -30,27 +41,240 @@
     <string name="status_in_progress">进行中</string>
     <string name="status_completed">已完成</string>
     <string name="status_skipped">已路过</string>
+    <string name="searching_city">搜索中…</string>
+    <string name="search_failed_network">搜索失败，请检查网络</string>
     <string name="location_notice">DreamTravel 正在检测你的位置</string>
     <string name="permission_denied_background">提醒功能需要后台定位，你可以在设置中随时开启</string>
     <string name="go_to_settings">前往设置</string>
+    <string name="permission_location_rationale">DreamTravel 需要获取你的位置信息，才能在你到达梦想城市时提醒你。你可以在设置中随时关闭。</string>
+    <string name="permission_background_rationale">开启「始终允许」后，DreamTravel 才能在后台自动检测位置，即使你没有打开 App 也能准时提醒。\n\n建议选择「始终允许」以获得最佳体验。</string>
+    <string name="permission_notification_rationale">DreamTravel 需要通知权限，才能在你到达梦想城市时发送提醒通知。</string>
+    <string name="permission_permanently_denied">权限已被永久拒绝，请前往系统设置手动开启。</string>
+    <string name="permission_retry">重试</string>
+    <string name="permission_settings">前往设置</string>
+    <string name="onboarding_background">开启后台定位\n让提醒准时送达</string>
     <string name="battery_optimization_notice">免除电池优化可以让提醒更及时</string>
+    <string name="status_network_down">无法连接网络，同步功能暂时不可用</string>
+    <string name="status_gps_disabled">定位服务未开启，提醒功能可能不准确</string>
+    <string name="status_location_permission_denied">位置权限未授权，核心功能不可用</string>
+    <string name="status_notification_denied">通知权限未开启，到达时将无法提醒</string>
+    <string name="status_sync_failed">数据同步失败，请检查网络</string>
+    <string name="status_background_location_denied">后台定位权限未授权，离开应用后无法检测位置</string>
+    <string name="status_battery_optimization">受电池优化限制，后台提醒可能延迟</string>
+    <string name="status_foreground_service">后台定位服务未运行，到达检测暂不可用</string>
     <string name="privacy_policy">隐私政策</string>
     <string name="privacy_policy_title">隐私声明</string>
-    <string name="privacy_policy_content">DreamTravel（以下简称「本应用」）重视你的隐私。\n\n
-\u2003\u2003<b>数据收集</b>\n
-\u2003\u2003• 位置信息：用于检测你是否到达梦想城市，仅在后台检测时使用\n
-\u2003\u2003• 设备标识符：用于匿名用户识别和云端数据备份\n\n
-\u2003\u2003<b>数据存储</b>\n
-\u2003\u2003• 你的梦想城市和待办事项优先存储在本地设备\n
-\u2003\u2003• 开启云端备份后，数据通过 Firebase 加密传输\n\n
-\u2003\u2003<b>数据使用</b>\n
-\u2003\u2003• 位置数据仅用于城市到达检测，不会用于广告或其他目的\n
-\u2003\u2003• 你不会收到垃圾推送，所有提醒都基于你设定的梦想\n\n
-\u2003\u2003<b>数据共享</b>\n
-\u2003\u2003• 本应用不向任何第三方出售或共享你的个人数据\n
-\u2003\u2003• 高德地图 SDK 仅用于位置服务，遵循高德隐私政策\n\n
-\u2003\u2003<b>你的权利</b>\n
-\u2003\u2003• 随时在系统设置中撤回位置权限\n
-\u2003\u2003• 停止使用本应用即停止所有数据收集\n\n
-\u2003\u2003如有疑问，请联系开发者。</string>
+    <!-- Settings -->
+    <string name="settings_title">设置</string>
+    <string name="settings_account">账户</string>
+    <string name="settings_upgrade_account">升级账户</string>
+    <string name="settings_upgrade_confirm">升级</string>
+    <string name="settings_sign_in">登录</string>
+    <string name="settings_sign_out">退出登录</string>
+    <string name="settings_sign_out_confirm_title">退出登录</string>
+    <string name="settings_sign_out_confirm_message">退出登录后将恢复为匿名模式。数据仍保留在本地。确定退出？</string>
+    <string name="settings_account_anonymous">当前状态：匿名用户</string>
+    <string name="settings_account_email">当前状态：已绑定邮箱</string>
+    <string name="settings_account_not_available">当前状态：不可用</string>
+    <string name="settings_data_status">数据状态</string>
+    <string name="settings_data_synced">已开启云端同步</string>
+    <string name="settings_data_local_anonymous">本地存储（匿名模式）</string>
+    <string name="settings_data_local_only">仅本地存储</string>
+    <!-- Diagnostics Panel -->
+    <string name="settings_system_status">系统状态</string>
+    <string name="settings_status_all_ok">所有系统状态正常 ✓</string>
+    <string name="settings_status_count">%d 项异常</string>
+    <string name="settings_diag_network">网络连接</string>
+    <string name="settings_diag_location_perm">位置权限</string>
+    <string name="settings_diag_gps">GPS 定位</string>
+    <string name="settings_diag_notification">通知权限</string>
+    <string name="settings_diag_sync">云端同步</string>
+    <string name="settings_diag_background_location">后台定位</string>
+    <string name="settings_diag_battery_optimization">电池优化</string>
+    <string name="settings_diag_foreground_service">后台服务</string>
+    <string name="settings_diag_ok">正常</string>
+    <string name="settings_diag_none">未检测到</string>
+    <string name="settings_diag_fix">修复</string>
+    <string name="settings_status_refresh">刷新状态</string>
+    <string name="settings_about">关于</string>
+    <string name="settings_app_version">版本 %s</string>
+    <string name="settings_email_hint">邮箱地址</string>
+    <string name="settings_password_hint">密码（至少6位）</string>
+    <string name="settings_error_title">错误</string>
+    <string name="privacy_policy_content"><![CDATA[
+DreamTravel（以下简称「本应用」）重视你的隐私。本隐私政策旨在说明我们如何收集、使用、存储和保护你的个人信息。<br/><br/>
+
+<b>一、信息收集</b><br/>
+本应用可能收集以下类型的信息：<br/>
+• <b>位置信息</b>：精确位置（GPS）和粗略位置，用于检测你是否到达你设定的梦想城市。位置信息仅在后台检测时使用。<br/>
+• <b>设备标识符</b>：用于匿名用户识别和云端数据备份。<br/>
+• <b>崩溃日志</b>：应用崩溃时自动收集异常信息，仅用于改善应用稳定性。<br/>
+• <b>应用使用数据</b>：你添加的梦想城市名称、待办事项内容和操作记录，仅存储在本地设备或你的云端账号中。<br/><br/>
+
+<b>二、信息使用</b><br/>
+我们收集的信息仅用于以下目的：<br/>
+• 城市到达检测与提醒推送<br/>
+• 梦想城市和待办事项的云端备份与多设备同步<br/>
+• 应用稳定性改善（崩溃日志）<br/>
+• 不会将你的数据用于广告推荐、用户画像或任何商业目的<br/><br/>
+
+<b>三、信息存储与安全</b><br/>
+• <b>本地优先</b>：你的梦想城市和待办事项优先存储在本地设备（Room 数据库）。<br/>
+• <b>云端备份</b>：当你使用云端功能时，数据通过 Firebase 加密传输并存储在 Google Cloud 服务器上。<br/>
+• <b>传输加密</b>：所有网络通信采用 HTTPS/TLS 加密。<br/>
+• <b>匿名账号</b>：首次使用无需注册，系统自动创建匿名账号。升级到正式账号后，数据将绑定至你的账号。<br/><br/>
+
+<b>四、第三方 SDK 说明</b><br/>
+本应用使用了以下第三方 SDK：<br/>
+1. <b>高德地图 SDK</b>（高德软件有限公司）<br/>
+\u2003\u2003用途：地图展示、位置搜索、城市地理编码、定位服务<br/>
+\u2003\u2003收集信息：位置信息、设备信息<br/>
+\u2003\u2003隐私政策：https://lbs.amap.com/pages/privacy/<br/>
+2. <b>Firebase SDK</b>（Google LLC）<br/>
+\u2003\u2003用途：匿名登录、云端数据存储、崩溃分析<br/>
+\u2003\u2003收集信息：设备标识符、崩溃日志、应用使用数据<br/>
+\u2003\u2003隐私政策：https://firebase.google.com/support/privacy<br/>
+3. <b>Google Play Services</b>（Google LLC）<br/>
+\u2003\u2003用途：位置服务（Geofence 地理围栏）、后台定位<br/>
+\u2003\u2003收集信息：位置信息<br/>
+\u2003\u2003隐私政策：https://policies.google.com/privacy<br/><br/>
+
+<b>五、数据共享</b><br/>
+• 本应用不向任何第三方出售你的个人数据。<br/>
+• 不与广告平台、数据经纪商共享数据。<br/>
+• 仅在上述 SDK 所需的范围内向服务提供方传输必要数据。<br/><br/>
+
+<b>六、权限说明</b><br/>
+本应用请求以下权限及其用途：<br/>
+• <b>精确定位（ACCESS_FINE_LOCATION）</b>：检测你当前所在位置，判断是否到达梦想城市。<br/>
+• <b>后台定位（ACCESS_BACKGROUND_LOCATION）</b>：在应用未打开时持续检测位置，确保提醒准时送达。<br/>
+• <b>通知（POST_NOTIFICATIONS）</b>：在你到达梦想城市时发送提醒通知。<br/>
+• <b>网络（INTERNET）</b>：云端数据同步和地图服务。<br/>
+所有权限均可在系统设置中随时撤回。<br/><br/>
+
+<b>七、你的权利</b><br/>
+• <b>访问与导出</b>：你可随时查看你的所有梦想城市和待办事项数据。<br/>
+• <b>删除数据</b>：删除梦想城市或待办事项后，数据从本地和云端同时移除。在设置页面可一键清除所有数据。<br/>
+• <b>撤回权限</b>：在系统「设置 > 应用 > DreamTravel > 权限」中随时撤回任何权限。<br/>
+• <b>账号注销</b>：在设置页面选择「注销账号」可删除你的账号及所有关联数据。<br/>
+• <b>停止使用</b>：卸载应用即停止所有数据收集。应用不保留后台残留数据。<br/><br/>
+
+<b>八、儿童隐私</b><br/>
+本应用不面向 13 岁以下儿童，不会故意收集儿童的个人信息。<br/><br/>
+
+<b>九、政策更新</b><br/>
+本隐私政策可能适时更新。重大变更将通过应用内通知告知。<br/><br/>
+
+<b>十、联系我们</b><br/>
+如对本隐私政策有任何疑问或建议，请通过以下方式联系：<br/>
+• 邮箱：dreamtravel.app@gmail.com<br/><br/>
+
+最后更新日期：2026年5月2日
+]]></string>
+    <string name="user_agreement_title">用户协议</string>
+    <string name="user_agreement_content"><![CDATA[
+<b>DreamTravel 用户协议</b><br/><br/>
+
+<b>一、服务说明</b><br/>
+DreamTravel 是一款旅行提醒工具，帮助你记录梦想城市和待办事项，并在到达时自动提醒。<br/><br/>
+
+<b>二、账号与使用</b><br/>
+• 你无需注册即可使用核心功能，系统自动创建匿名账号。<br/>
+• 升级至正式账号后，你可以跨设备同步数据。<br/>
+• 你应对自己账号下的所有操作负责。<br/>
+• 禁止利用本应用从事任何违法违规活动。<br/><br/>
+
+<b>三、服务可用性</b><br/>
+• 提醒功能的准确性受限于设备 GPS 精度、网络状况、系统后台策略等因素。<br/>
+• 我们尽力保证服务稳定，但不承诺 100% 的提醒送达率。<br/>
+• 本应用按「现状」提供，不提供任何明示或暗示的保证。<br/><br/>
+
+<b>四、免费服务</b><br/>
+• 本应用目前为完全免费服务，不包含任何付费功能。<br/>
+• 如未来引入付费功能，将提前通知并征得你的同意。<br/><br/>
+
+<b>五、责任限制</b><br/>
+• 因系统限制（如电池优化、省电模式）导致的提醒延迟或遗漏，本应用不承担责任。<br/>
+• 因用户未授权必要权限导致功能无法正常使用，本应用不承担责任。<br/><br/>
+
+<b>六、协议变更</b><br/>
+我们保留修改本协议的权利。重大变更将通过应用内通知告知。<br/><br/>
+
+最后更新日期：2026年5月2日
+]]></string>
+    <string name="sdk_disclosure_title">第三方 SDK 清单</string>
+    <string name="sdk_disclosure_content"><![CDATA[
+<b>第三方 SDK 清单</b><br/><br/>
+根据相关法律法规要求，本应用使用的第三方 SDK 信息如下：<br/><br/>
+
+1. <b>高德地图 SDK</b><br/>
+• 公司：高德软件有限公司<br/>
+• 包名：com.amap.api<br/>
+• 版本：3dmap 10.0.600 / search 9.4.0<br/>
+• 功能：地图展示、城市地理编码搜索、定位<br/>
+• 收集信息类型：位置信息、Wi-Fi 信息、设备标识符<br/>
+• 隐私政策：https://lbs.amap.com/pages/privacy/<br/><br/>
+
+2. <b>Firebase Auth</b><br/>
+• 公司：Google LLC<br/>
+• 包名：com.google.firebase.auth<br/>
+• 版本：32.7.2<br/>
+• 功能：匿名登录、邮箱注册登录<br/>
+• 收集信息类型：设备标识符<br/>
+• 隐私政策：https://firebase.google.com/support/privacy<br/><br/>
+
+3. <b>Firebase Firestore</b><br/>
+• 公司：Google LLC<br/>
+• 包名：com.google.firebase.firestore<br/>
+• 版本：32.7.2<br/>
+• 功能：梦想城市和待办事项云端存储与同步<br/>
+• 收集信息类型：用户创建的梦想城市、待办事项等应用数据<br/>
+• 隐私政策：https://firebase.google.com/support/privacy<br/><br/>
+
+4. <b>Firebase Crashlytics</b><br/>
+• 公司：Google LLC<br/>
+• 包名：com.google.firebase.crashlytics<br/>
+• 版本：32.7.2<br/>
+• 功能：崩溃日志收集与分析<br/>
+• 收集信息类型：崩溃堆栈信息、设备型号、系统版本<br/>
+• 隐私政策：https://firebase.google.com/support/privacy<br/><br/>
+
+5. <b>Google Play Services - Location</b><br/>
+• 公司：Google LLC<br/>
+• 包名：com.google.android.gms:play-services-location<br/>
+• 版本：21.1.0<br/>
+• 功能：位置获取、Geofence 地理围栏<br/>
+• 收集信息类型：位置信息<br/>
+• 隐私政策：https://policies.google.com/privacy<br/>
+]]></string>
+    <string name="data_deletion_title">数据删除说明</string>
+    <string name="data_deletion_info"><![CDATA[
+<b>数据删除与账号注销</b><br/><br/>
+
+<b>删除单条数据</b><br/>
+• 在「梦想之地」列表左滑或长按可删除单个梦想城市及其关联的所有待办事项。<br/>
+• 在「待办事项」列表可删除单条待办事项。<br/>
+• 删除操作会同时从本地存储和云端移除数据。<br/><br/>
+
+<b>清除全部数据</b><br/>
+• 在「设置」页面选择「清除所有数据」可删除所有本地和云端数据。<br/>
+• 此操作不可撤销，请谨慎操作。<br/><br/>
+
+<b>账号注销</b><br/>
+• 在「设置」页面选择「注销账号」可永久删除你的账号及所有关联数据。<br/>
+• 匿名账号注销后将无法恢复。<br/>
+• 正式账号（邮箱注册）注销后，与该邮箱关联的所有数据将被永久删除。<br/><br/>
+
+<b>权限撤回</b><br/>
+• 在系统「设置 > 应用 > DreamTravel > 权限」中随时撤回任何已授权权限。<br/>
+• 撤回位置权限后，到达提醒功能将停止工作。<br/>
+• 撤回通知权限后，你将无法收到提醒通知。<br/><br/>
+
+<b>卸载应用</b><br/>
+• 卸载应用将停止所有数据收集。<br/>
+• 本地数据随应用卸载而删除。<br/>
+• 云端数据保留至你主动注销账号或删除数据为止。<br/><br/>
+
+如有任何数据删除相关问题，请联系：dreamtravel.app@gmail.com
+]]></string>
 </resources>

@@ -14,7 +14,8 @@ data class PlaceEntity(
     val longitude: Double,
     val dwellMinutes: Int = 30,
     val isActive: Boolean = true,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    val updatedAt: Long = System.currentTimeMillis()
 )
 
 @Entity(tableName = "todos")
@@ -28,7 +29,8 @@ data class TodoEntity(
     val remindIntervalMinutes: Int = 1440,
     val remindCount: Int = 0,
     val createdAt: Long = System.currentTimeMillis(),
-    val completedAt: Long? = null
+    val completedAt: Long? = null,
+    val updatedAt: Long = System.currentTimeMillis()
 )
 
 @Entity(tableName = "dwell_events")

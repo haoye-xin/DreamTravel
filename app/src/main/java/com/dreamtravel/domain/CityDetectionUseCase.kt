@@ -14,11 +14,11 @@ class CityDetectionUseCase @Inject constructor() {
      */
     fun normalizeCityName(name: String): String {
         return name
+            .replace("白族自治州", "")
+            .replace("自治州", "")
+            .replace("地区", "")
             .replace("市", "")
             .replace("州", "")
-            .replace("地区", "")
-            .replace("自治州", "")
-            .replace("白族自治州", "")
             .trim()
     }
 
@@ -26,6 +26,8 @@ class CityDetectionUseCase @Inject constructor() {
      * 判断逆地理编码返回的城市名是否匹配梦想城市
      */
     fun isCityMatch(geocodeCityName: String, dreamPlace: Place): Boolean {
+        if (geocodeCityName.isBlank()) return false
+
         // 1. cityCode 精确匹配（最可靠）
         if (!dreamPlace.cityCode.isNullOrBlank() && geocodeCityName.contains(dreamPlace.cityCode)) {
             return true

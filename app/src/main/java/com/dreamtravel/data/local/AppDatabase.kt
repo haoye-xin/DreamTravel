@@ -15,7 +15,7 @@ import com.dreamtravel.data.local.entity.TodoEntity
         TodoEntity::class,
         DwellEventEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

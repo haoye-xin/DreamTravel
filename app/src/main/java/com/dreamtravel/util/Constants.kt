@@ -25,6 +25,7 @@ object Constants {
     // Extras
     const val EXTRA_PLACE_ID = "extra_place_id"
     const val EXTRA_PLACE_NAME = "extra_place_name"
+    const val EXTRA_TODO_ID = "todo_id"
 
     // Defaults
     const val DEFAULT_DWELL_MINUTES = 30

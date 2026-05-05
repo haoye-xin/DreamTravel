@@ -43,6 +43,6 @@
 - Kotlin Coroutines 1.7.3
 - WorkManager 2.9.0
 - Play Services Location 21.1.0
-- 高德 3D 地图 10.0.600 + 搜索 9.7.1
+- 高德 3D 地图 10.0.600 + 搜索 9.4.0
 - ViewPager2, SwipeRefreshLayout
 - JUnit 4.13.2, MockK 1.13.9, Espresso 3.5.1

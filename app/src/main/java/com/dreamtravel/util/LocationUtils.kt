@@ -1,6 +1,8 @@
 package com.dreamtravel.util
 
+import android.content.Context
 import android.location.Location
+import android.location.LocationManager
 
 object LocationUtils {
 
@@ -16,5 +18,14 @@ object LocationUtils {
 
     fun hasSufficientAccuracy(location: Location, thresholdMeters: Float): Boolean {
         return location.hasAccuracy() && location.accuracy <= thresholdMeters
+    }
+
+    /**
+     * Checks whether the GPS provider is enabled on the device.
+     */
+    fun isLocationEnabled(context: Context): Boolean {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
+            ?: return false
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
     }
 }

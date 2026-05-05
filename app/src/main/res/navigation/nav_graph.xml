@@ -31,6 +31,9 @@
         <action
             android:id="@+id/action_placeList_to_map"
             app:destination="@id/mapFragment" />
+        <action
+            android:id="@+id/action_placeList_to_settings"
+            app:destination="@id/settingsFragment" />
     </fragment>
 
     <fragment
@@ -59,12 +62,31 @@
         android:id="@+id/addTodoFragment"
         android:name="com.dreamtravel.ui.todos.AddTodoFragment"
         android:label="添加待办"
-        tools:layout="@layout/fragment_add_todo" />
+        tools:layout="@layout/fragment_add_todo">
+        <argument
+            android:name="placeId"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="todoId"
+            app:argType="string"
+            android:defaultValue="" />
+    </dialog>
 
     <fragment
         android:id="@+id/mapFragment"
         android:name="com.dreamtravel.ui.map.MapFragment"
         android:label="地图"
-        tools:layout="@layout/fragment_map" />
+        tools:layout="@layout/fragment_map">
+        <action
+            android:id="@+id/action_map_to_todoList"
+            app:destination="@id/todoListFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.dreamtravel.ui.settings.SettingsFragment"
+        android:label="设置"
+        tools:layout="@layout/fragment_settings" />
 
 </navigation>
