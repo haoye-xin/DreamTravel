@@ -33,6 +33,10 @@ class AddPlaceFragment : Fragment(R.layout.fragment_add_place) {
 
         observeViewModel()
 
+        if (viewModel.hasPrefill) {
+            binding.editCityName.setText(viewModel.prefillCity)
+        }
+
         binding.btnSave.setOnClickListener {
             val cityName = binding.editCityName.text.toString().trim()
             if (cityName.isBlank()) {
@@ -40,7 +44,17 @@ class AddPlaceFragment : Fragment(R.layout.fragment_add_place) {
                 return@setOnClickListener
             }
 
-            viewModel.searchAndAddPlace(cityName, selectedDwell)
+            if (viewModel.hasPrefill) {
+                viewModel.addPlaceFromMap(
+                    lat = viewModel.prefillLat.toDouble(),
+                    lng = viewModel.prefillLng.toDouble(),
+                    cityName = cityName,
+                    cityCode = viewModel.prefillCityCode.ifBlank { null },
+                    dwellMinutes = selectedDwell
+                )
+            } else {
+                viewModel.searchAndAddPlace(cityName, selectedDwell)
+            }
         }
     }
 

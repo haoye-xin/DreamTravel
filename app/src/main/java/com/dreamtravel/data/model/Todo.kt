@@ -23,7 +23,15 @@ data class Todo(
     val remindCount: Int,
     val createdAt: Long,
     val completedAt: Long?,
-    val updatedAt: Long
+    val updatedAt: Long,
+    val provinceCode: String? = null,
+    val provinceName: String? = null,
+    val cityCode: String? = null,
+    val cityName: String? = null,
+    val districtCode: String? = null,
+    val districtName: String? = null,
+    val formattedAddress: String? = null,
+    val color: String? = null
 )
 
 fun TodoEntity.toDomain(): Todo = Todo(
@@ -36,7 +44,15 @@ fun TodoEntity.toDomain(): Todo = Todo(
     remindCount = remindCount,
     createdAt = createdAt,
     completedAt = completedAt,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    provinceCode = provinceCode,
+    provinceName = provinceName,
+    cityCode = cityCode,
+    cityName = cityName,
+    districtCode = districtCode,
+    districtName = districtName,
+    formattedAddress = formattedAddress,
+    color = color
 )
 
 fun Todo.toEntity(): TodoEntity = TodoEntity(
@@ -49,5 +65,13 @@ fun Todo.toEntity(): TodoEntity = TodoEntity(
     remindCount = remindCount,
     createdAt = createdAt,
     completedAt = completedAt,
-    updatedAt = updatedAt
+    updatedAt = updatedAt,
+    provinceCode = provinceCode,
+    provinceName = provinceName,
+    cityCode = cityCode,
+    cityName = cityName,
+    districtCode = districtCode,
+    districtName = districtName,
+    formattedAddress = formattedAddress,
+    color = color
 )

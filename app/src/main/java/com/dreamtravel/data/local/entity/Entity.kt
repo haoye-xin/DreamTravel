@@ -30,7 +30,15 @@ data class TodoEntity(
     val remindCount: Int = 0,
     val createdAt: Long = System.currentTimeMillis(),
     val completedAt: Long? = null,
-    val updatedAt: Long = System.currentTimeMillis()
+    val updatedAt: Long = System.currentTimeMillis(),
+    val provinceCode: String? = null,
+    val provinceName: String? = null,
+    val cityCode: String? = null,
+    val cityName: String? = null,
+    val districtCode: String? = null,
+    val districtName: String? = null,
+    val formattedAddress: String? = null,
+    val color: String? = null
 )
 
 @Entity(tableName = "dwell_events")

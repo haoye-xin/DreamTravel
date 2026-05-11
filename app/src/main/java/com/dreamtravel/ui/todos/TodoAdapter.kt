@@ -1,9 +1,12 @@
 package com.dreamtravel.ui.todos
 
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.dreamtravel.R
 import com.dreamtravel.data.model.Todo
 import com.dreamtravel.data.model.TodoStatus
 import java.text.SimpleDateFormat
@@ -23,7 +26,7 @@ class TodoAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(android.R.layout.simple_list_item_2, parent, false)
+            .inflate(R.layout.item_todo, parent, false)
         return ViewHolder(view)
     }
 
@@ -32,6 +35,8 @@ class TodoAdapter(
     }
 
     override fun getItemCount() = todos.size
+
+    fun getTodoAt(position: Int): Todo? = todos.getOrNull(position)
 
     fun updateData(newTodos: List<Todo>) {
         todos = newTodos
@@ -42,10 +47,11 @@ class TodoAdapter(
         private val view: android.view.View
     ) : RecyclerView.ViewHolder(view) {
 
-        fun bind(todo: Todo) {
-            val text1 = view.findViewById<android.widget.TextView>(android.R.id.text1)
-            val text2 = view.findViewById<android.widget.TextView>(android.R.id.text2)
+        private val colorIndicator = view.findViewById<android.view.View>(R.id.colorIndicator)
+        private val textTitle = view.findViewById<android.widget.TextView>(R.id.textTitle)
+        private val textSubtitle = view.findViewById<android.widget.TextView>(R.id.textSubtitle)
 
+        fun bind(todo: Todo) {
             val statusIcon = when (todo.status) {
                 TodoStatus.COMPLETED -> "\u2705"
                 TodoStatus.IN_PROGRESS -> "\uD83D\uDD04"
@@ -53,13 +59,30 @@ class TodoAdapter(
                 TodoStatus.PENDING -> "\u23F3"
             }
 
-            text1.text = "$statusIcon ${todo.title}"
+            textTitle.text = "$statusIcon ${todo.title}"
             val intervalText = if (todo.remindIntervalMinutes >= 60) {
                 "${todo.remindIntervalMinutes / 60}h"
             } else {
                 "${todo.remindIntervalMinutes}min"
             }
-            text2.text = "提醒间隔: $intervalText  | 添加于 ${dateFormat.format(Date(todo.createdAt))}"
+            textSubtitle.text = "提醒间隔: $intervalText  | 添加于 ${dateFormat.format(Date(todo.createdAt))}"
+
+            // Set color indicator
+            val color = todo.color
+            if (color != null) {
+                try {
+                    val drawable = GradientDrawable().apply {
+                        shape = GradientDrawable.OVAL
+                        setColor(Color.parseColor(color))
+                    }
+                    colorIndicator.background = drawable
+                    colorIndicator.visibility = android.view.View.VISIBLE
+                } catch (e: Exception) {
+                    colorIndicator.visibility = android.view.View.GONE
+                }
+            } else {
+                colorIndicator.visibility = android.view.View.GONE
+            }
 
             // Tap: cycle status
             view.setOnClickListener {

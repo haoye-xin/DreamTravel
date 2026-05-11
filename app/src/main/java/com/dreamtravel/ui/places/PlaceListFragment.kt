@@ -1,6 +1,12 @@
 package com.dreamtravel.ui.places
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -47,6 +53,8 @@ class PlaceListFragment : Fragment(R.layout.fragment_place_list) {
         binding.fabAddPlace.setOnClickListener {
             findNavController().navigate(R.id.action_placeList_to_addPlace)
         }
+
+        showBatteryOptimizationDialogIfNeeded()
     }
 
     private fun setupToolbar() {
@@ -147,6 +155,33 @@ class PlaceListFragment : Fragment(R.layout.fragment_place_list) {
             .setMessage(R.string.delete_confirm)
             .setPositiveButton("删除") { _, _ -> viewModel.deletePlace(place.id) }
             .setNegativeButton("取消", null)
+            .show()
+    }
+
+    private fun showBatteryOptimizationDialogIfNeeded() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return
+
+        val powerManager = requireContext().getSystemService(Context.POWER_SERVICE) as PowerManager
+        if (powerManager.isIgnoringBatteryOptimizations(requireContext().packageName)) return
+
+        val prefs = requireContext().getSharedPreferences("dream_travel_prefs", Context.MODE_PRIVATE)
+        val lastShown = prefs.getLong("battery_opt_dialog_last_shown", 0)
+        val oneWeek = 7 * 24 * 60 * 60 * 1000L
+        if (System.currentTimeMillis() - lastShown < oneWeek) return
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.battery_optimization_dialog_title)
+            .setMessage(R.string.battery_optimization_dialog_message)
+            .setPositiveButton(R.string.go_to_settings) { _, _ ->
+                val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                    data = Uri.parse("package:" + requireContext().packageName)
+                }
+                startActivity(intent)
+                prefs.edit().putLong("battery_opt_dialog_last_shown", System.currentTimeMillis()).apply()
+            }
+            .setNegativeButton(R.string.btn_later) { _, _ ->
+                prefs.edit().putLong("battery_opt_dialog_last_shown", System.currentTimeMillis()).apply()
+            }
             .show()
     }
 

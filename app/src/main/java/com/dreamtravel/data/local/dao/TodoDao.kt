@@ -46,6 +46,9 @@ interface TodoDao {
     @Query("SELECT * FROM todos WHERE placeId = :placeId AND status IN ('COMPLETED', 'SKIPPED') ORDER BY createdAt DESC")
     fun getTodoHistoryByPlace(placeId: String): Flow<List<TodoEntity>>
 
+    @Query("SELECT * FROM todos ORDER BY createdAt DESC")
+    suspend fun getAllTodos(): List<TodoEntity>
+
     @Transaction
     suspend fun mergeTodos(todos: List<TodoEntity>) {
         for (todo in todos) {

@@ -69,4 +69,10 @@ class TodoListViewModel @Inject constructor(
             analytics.logEvent(AnalyticsEvent.TODO_DELETED, mapOf(AnalyticsEvent.Param.PLACE_ID to placeId))
         }
     }
+
+    fun restoreTodo(todo: Todo) {
+        viewModelScope.launch {
+            repository.addTodo(todo)
+        }
+    }
 }

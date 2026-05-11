@@ -1,10 +1,13 @@
 package com.dreamtravel.data.repository
 
+import android.content.Context
 import com.dreamtravel.data.local.dao.PlaceDao
 import com.dreamtravel.data.local.dao.TodoDao
 import com.dreamtravel.data.model.*
 import com.dreamtravel.data.remote.FirestoreSyncService
+import com.dreamtravel.service.SyncRetryWorker
 import com.dreamtravel.util.StatusManager
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -16,7 +19,8 @@ class DreamRepositoryImpl @Inject constructor(
     private val placeDao: PlaceDao,
     private val todoDao: TodoDao,
     private val firestoreSync: FirestoreSyncService,
-    private val statusManager: StatusManager
+    private val statusManager: StatusManager,
+    @ApplicationContext private val context: Context
 ) : DreamRepository {
 
     // ─── Places ──────────────────────────────────────────────
@@ -47,7 +51,7 @@ class DreamRepositoryImpl @Inject constructor(
         val entity = updatedPlace.toEntity()
         placeDao.insertPlace(entity)
         val syncOk = firestoreSync.syncPlaceToFirestore(updatedPlace)
-        statusManager.reportSyncResult(syncOk)
+        handleSyncResult(syncOk)
     }
 
     override suspend fun updatePlace(place: Place) {
@@ -55,13 +59,13 @@ class DreamRepositoryImpl @Inject constructor(
         val entity = updatedPlace.toEntity()
         placeDao.updatePlace(entity)
         val syncOk = firestoreSync.syncPlaceToFirestore(updatedPlace)
-        statusManager.reportSyncResult(syncOk)
+        handleSyncResult(syncOk)
     }
 
     override suspend fun deletePlace(placeId: String) {
         placeDao.deletePlaceById(placeId)
         val syncOk = firestoreSync.deletePlaceFromFirestore(placeId)
-        statusManager.reportSyncResult(syncOk)
+        handleSyncResult(syncOk)
     }
 
     override suspend fun setPlaceActive(placeId: String, isActive: Boolean) {
@@ -69,7 +73,7 @@ class DreamRepositoryImpl @Inject constructor(
         // Sync updated state to Firestore
         getPlaceById(placeId)?.let {
             val syncOk = firestoreSync.syncPlaceToFirestore(it)
-            statusManager.reportSyncResult(syncOk)
+            handleSyncResult(syncOk)
         }
     }
 
@@ -101,14 +105,14 @@ class DreamRepositoryImpl @Inject constructor(
         val updatedTodo = todo.copy(updatedAt = System.currentTimeMillis())
         todoDao.insertTodo(updatedTodo.toEntity())
         val syncOk = firestoreSync.syncTodoToFirestore(updatedTodo)
-        statusManager.reportSyncResult(syncOk)
+        handleSyncResult(syncOk)
     }
 
     override suspend fun updateTodo(todo: Todo) {
         val updatedTodo = todo.copy(updatedAt = System.currentTimeMillis())
         todoDao.updateTodo(updatedTodo.toEntity())
         val syncOk = firestoreSync.syncTodoToFirestore(updatedTodo)
-        statusManager.reportSyncResult(syncOk)
+        handleSyncResult(syncOk)
     }
 
     override suspend fun updateTodoStatus(todoId: String, newStatus: TodoStatus) {
@@ -118,7 +122,7 @@ class DreamRepositoryImpl @Inject constructor(
         todoDao.getTodoById(todoId)?.toDomain()?.let { todo ->
             val updatedTodo = todo.copy(updatedAt = System.currentTimeMillis(), status = newStatus)
             val syncOk = firestoreSync.syncTodoToFirestore(updatedTodo)
-            statusManager.reportSyncResult(syncOk)
+            handleSyncResult(syncOk)
         }
     }
 
@@ -132,13 +136,13 @@ class DreamRepositoryImpl @Inject constructor(
             val syncOk = firestoreSync.syncTodoToFirestore(updatedTodo)
             if (!syncOk) allOk = false
         }
-        statusManager.reportSyncResult(allOk)
+        handleSyncResult(allOk)
     }
 
     override suspend fun deleteTodo(todoId: String) {
         todoDao.deleteTodoById(todoId)
         val syncOk = firestoreSync.deleteTodoFromFirestore(todoId)
-        statusManager.reportSyncResult(syncOk)
+        handleSyncResult(syncOk)
     }
 
     override suspend fun incrementRemindCount(todoId: String) {
@@ -147,7 +151,7 @@ class DreamRepositoryImpl @Inject constructor(
         todoDao.getTodoById(todoId)?.toDomain()?.let { todo ->
             val updatedTodo = todo.copy(updatedAt = System.currentTimeMillis())
             val syncOk = firestoreSync.syncTodoToFirestore(updatedTodo)
-            statusManager.reportSyncResult(syncOk)
+            handleSyncResult(syncOk)
         }
     }
 
@@ -157,29 +161,34 @@ class DreamRepositoryImpl @Inject constructor(
 
     // ─── Cloud Sync ──────────────────────────────────────────
 
+    private fun handleSyncResult(syncOk: Boolean) {
+        statusManager.reportSyncResult(syncOk)
+        if (!syncOk) {
+            try {
+                SyncRetryWorker.schedule(context)
+            } catch (_: Exception) {
+                // WorkManager may not be available in test environments
+            }
+        }
+    }
+
     override suspend fun syncFromCloud() {
-        val snapshot = firestoreSync.pullCloudData()
-        if (snapshot == null) {
-            statusManager.reportSyncResult(false)
+        val snapshot = firestoreSync.pullCloudData() ?: run {
+            handleSyncResult(false)
             return
         }
-
-        // Merge places (insert if new or cloud is newer)
-        for (cloudPlace in snapshot.places) {
-            val local = placeDao.getPlaceById(cloudPlace.id)
-            if (local == null || cloudPlace.updatedAt > local.updatedAt) {
-                placeDao.insertPlace(cloudPlace.toEntity())
+        for (place in snapshot.places) {
+            val local = placeDao.getPlaceById(place.id)
+            if (local == null || local.updatedAt < place.updatedAt) {
+                placeDao.insertPlace(place.toEntity())
             }
         }
-
-        // Merge todos (insert if new or cloud is newer)
-        for (cloudTodo in snapshot.todos) {
-            val local = todoDao.getTodoById(cloudTodo.id)
-            if (local == null || cloudTodo.updatedAt > local.updatedAt) {
-                todoDao.insertTodo(cloudTodo.toEntity())
+        for (todo in snapshot.todos) {
+            val local = todoDao.getTodoById(todo.id)
+            if (local == null || local.updatedAt < todo.updatedAt) {
+                todoDao.insertTodo(todo.toEntity())
             }
         }
-
-        statusManager.reportSyncResult(true)
+        handleSyncResult(true)
     }
 }

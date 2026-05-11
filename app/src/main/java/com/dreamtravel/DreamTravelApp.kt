@@ -5,6 +5,7 @@ import android.os.Environment
 import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.amap.api.services.core.ServiceSettings
 import com.dreamtravel.data.repository.DreamRepository
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
@@ -37,6 +38,10 @@ class DreamTravelApp : Application(), Configuration.Provider {
             .build()
 
     override fun onCreate() {
+        // 高德地图 SDK 隐私合规（必须在 super.onCreate() 之前，否则 Hilt 初始化 DI 图时 GeocodeSearch 会崩溃）
+        ServiceSettings.updatePrivacyShow(this, true, true)
+        ServiceSettings.updatePrivacyAgree(this, true)
+
         super.onCreate()
 
         // 全局崩溃捕获：写崩溃日志到文件，便于排查

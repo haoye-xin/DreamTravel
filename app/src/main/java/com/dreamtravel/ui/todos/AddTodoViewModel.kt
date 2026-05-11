@@ -39,6 +39,9 @@ class AddTodoViewModel @Inject constructor(
     private val _defaultRemindInterval = MutableStateFlow(defaultRemindInterval())
     val defaultRemindInterval: StateFlow<Int> = _defaultRemindInterval.asStateFlow()
 
+    private val _selectedRegion = MutableStateFlow<SavedRegion?>(null)
+    val selectedRegion: StateFlow<SavedRegion?> = _selectedRegion.asStateFlow()
+
     init {
         if (isEditing) {
             loadTodo()
@@ -49,47 +52,93 @@ class AddTodoViewModel @Inject constructor(
         viewModelScope.launch {
             val todo = repository.getTodoById(todoId)
             _existingTodo.value = todo
+            todo?.let { t ->
+                if (t.provinceCode != null && t.formattedAddress != null) {
+                    _selectedRegion.value = SavedRegion(
+                        provinceCode = t.provinceCode,
+                        provinceName = t.provinceName,
+                        cityCode = t.cityCode,
+                        cityName = t.cityName,
+                        districtCode = t.districtCode,
+                        districtName = t.districtName,
+                        formattedAddress = t.formattedAddress
+                    )
+                }
+            }
         }
     }
 
-    fun addTodo(title: String, notes: String, remindIntervalMinutes: Int) {
-        viewModelScope.launch {
-            saveDefaultRemindInterval(remindIntervalMinutes)
-            repository.addTodo(
-                Todo(
-                    id = UUID.randomUUID().toString(),
-                    placeId = placeId,
-                    title = title,
-                    notes = notes,
-                    status = TodoStatus.PENDING,
-                    remindIntervalMinutes = remindIntervalMinutes,
-                    remindCount = 0,
-                    createdAt = System.currentTimeMillis(),
-                    completedAt = null,
-                    updatedAt = System.currentTimeMillis()
-                )
+    fun onRegionSelected(
+        provinceCode: String?,
+        provinceName: String?,
+        cityCode: String?,
+        cityName: String?,
+        districtCode: String?,
+        districtName: String?,
+        formattedAddress: String?
+    ) {
+        if (provinceCode == null || formattedAddress == null) return
+        _selectedRegion.value = SavedRegion(
+            provinceCode = provinceCode,
+            provinceName = provinceName,
+            cityCode = cityCode,
+            cityName = cityName,
+            districtCode = districtCode,
+            districtName = districtName,
+            formattedAddress = formattedAddress
+        )
+    }
+
+    suspend fun addTodoSuspend(title: String, notes: String, remindIntervalMinutes: Int, color: String? = null) {
+        saveDefaultRemindInterval(remindIntervalMinutes)
+        val region = _selectedRegion.value
+        repository.addTodo(
+            Todo(
+                id = UUID.randomUUID().toString(),
+                placeId = placeId,
+                title = title,
+                notes = notes,
+                status = TodoStatus.PENDING,
+                remindIntervalMinutes = remindIntervalMinutes,
+                remindCount = 0,
+                createdAt = System.currentTimeMillis(),
+                completedAt = null,
+                updatedAt = System.currentTimeMillis(),
+                provinceCode = region?.provinceCode,
+                provinceName = region?.provinceName,
+                cityCode = region?.cityCode,
+                cityName = region?.cityName,
+                districtCode = region?.districtCode,
+                districtName = region?.districtName,
+                formattedAddress = region?.formattedAddress,
+                color = color
             )
-            analytics.logEvent(AnalyticsEvent.TODO_ADDED, mapOf(AnalyticsEvent.Param.PLACE_ID to placeId))
-        }
+        )
+        analytics.logEvent(AnalyticsEvent.TODO_ADDED, mapOf(AnalyticsEvent.Param.PLACE_ID to placeId))
     }
 
-    fun updateTodo(title: String, notes: String, remindIntervalMinutes: Int) {
-        viewModelScope.launch {
-            saveDefaultRemindInterval(remindIntervalMinutes)
-            val existing = _existingTodo.value ?: return@launch
-            repository.updateTodo(
-                existing.copy(
-                    title = title,
-                    notes = notes,
-                    remindIntervalMinutes = remindIntervalMinutes,
-                    updatedAt = System.currentTimeMillis()
-                )
+    suspend fun updateTodoSuspend(title: String, notes: String, remindIntervalMinutes: Int, color: String? = null) {
+        saveDefaultRemindInterval(remindIntervalMinutes)
+        val existing = _existingTodo.value ?: return
+        val region = _selectedRegion.value
+        repository.updateTodo(
+            existing.copy(
+                title = title,
+                notes = notes,
+                remindIntervalMinutes = remindIntervalMinutes,
+                updatedAt = System.currentTimeMillis(),
+                provinceCode = region?.provinceCode ?: existing.provinceCode,
+                provinceName = region?.provinceName ?: existing.provinceName,
+                cityCode = region?.cityCode ?: existing.cityCode,
+                cityName = region?.cityName ?: existing.cityName,
+                districtCode = region?.districtCode ?: existing.districtCode,
+                districtName = region?.districtName ?: existing.districtName,
+                formattedAddress = region?.formattedAddress ?: existing.formattedAddress,
+                color = color
             )
-            analytics.logEvent(AnalyticsEvent.TODO_EDITED, mapOf(AnalyticsEvent.Param.PLACE_ID to placeId))
-        }
+        )
+        analytics.logEvent(AnalyticsEvent.TODO_EDITED, mapOf(AnalyticsEvent.Param.PLACE_ID to placeId))
     }
-
-    // ─── Preferences ─────────────────────────────────────────
 
     private fun defaultRemindInterval(): Int {
         return prefs().getInt(PREF_KEY_REMIND_INTERVAL, Constants.DEFAULT_REMIND_INTERVAL_MINUTES)
@@ -108,3 +157,13 @@ class AddTodoViewModel @Inject constructor(
         private const val PREF_KEY_REMIND_INTERVAL = "default_remind_interval_minutes"
     }
 }
+
+data class SavedRegion(
+    val provinceCode: String?,
+    val provinceName: String?,
+    val cityCode: String?,
+    val cityName: String?,
+    val districtCode: String?,
+    val districtName: String?,
+    val formattedAddress: String?
+)

@@ -10,6 +10,9 @@ interface PlaceDao {
     @Query("SELECT * FROM places ORDER BY createdAt DESC")
     fun getAllPlaces(): Flow<List<PlaceEntity>>
 
+    @Query("SELECT * FROM places ORDER BY createdAt DESC")
+    suspend fun getAllPlacesList(): List<PlaceEntity>
+
     @Query("SELECT * FROM places WHERE isActive = 1 ORDER BY createdAt DESC")
     fun getActivePlaces(): Flow<List<PlaceEntity>>
 

@@ -18,6 +18,7 @@ android {
         versionCode = 2
         versionName = "1.1.0"
 
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // 高德地图 API Key（需替换为实际 Key）
@@ -51,6 +52,8 @@ android {
         viewBinding = true
     }
 }
+
+
 
 dependencies {
     // Core Android
@@ -101,6 +104,9 @@ dependencies {
 
     // ViewPager2 (Onboarding)
     implementation("androidx.viewpager2:viewpager2:1.0.0")
+
+    // Gson (JSON parsing for region data)
+    implementation("com.google.code.gson:gson:2.10.1")
 
     // SwipeRefresh
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")

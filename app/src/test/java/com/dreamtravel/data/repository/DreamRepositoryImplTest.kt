@@ -1,5 +1,6 @@
 package com.dreamtravel.data.repository
 
+import android.content.Context
 import com.dreamtravel.data.local.dao.PlaceDao
 import com.dreamtravel.data.local.dao.TodoDao
 import com.dreamtravel.data.local.entity.PlaceEntity
@@ -56,7 +57,7 @@ class DreamRepositoryImplTest {
         todoDao = mockk(relaxed = true)
         firestoreSync = mockk(relaxed = true)
         statusManager = mockk(relaxed = true)
-        repository = DreamRepositoryImpl(placeDao, todoDao, firestoreSync, statusManager)
+        repository = DreamRepositoryImpl(placeDao, todoDao, firestoreSync, statusManager, mockk(relaxed = true))
     }
 
     // ─── Places ──────────────────────────────────────────────
