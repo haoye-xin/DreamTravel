@@ -331,6 +331,9 @@ class LocationService : Service() {
                     }
                 })
 
+                // 协程取消时销毁客户端，防止泄漏
+                cont.invokeOnCancellation { client.onDestroy() }
+
                 client.startLocation()
             } catch (e: Exception) {
                 cont.resume(null) {}

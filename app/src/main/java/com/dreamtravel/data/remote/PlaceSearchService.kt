@@ -1,11 +1,13 @@
 package com.dreamtravel.data.remote
 
+import android.content.Context
 import com.amap.api.services.core.LatLonPoint
 import com.amap.api.services.geocoder.GeocodeQuery
 import com.amap.api.services.geocoder.GeocodeResult
 import com.amap.api.services.geocoder.GeocodeSearch
 import com.amap.api.services.geocoder.RegeocodeResult
 import com.dreamtravel.data.model.SearchResult
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -13,10 +15,12 @@ import kotlin.coroutines.resume
 
 @Singleton
 class PlaceSearchService @Inject constructor(
-    private val geocodeSearch: GeocodeSearch
+    @ApplicationContext private val context: Context
 ) {
 
     suspend fun searchCity(name: String): SearchResult? {
+        // 每次请求创建独立实例，避免并发调用 listener 覆盖竞态
+        val localSearch = GeocodeSearch(context)
         return suspendCancellableCoroutine { continuation ->
             val query = GeocodeQuery(name, null)
             val listener = object : GeocodeSearch.OnGeocodeSearchListener {
@@ -45,12 +49,11 @@ class PlaceSearchService @Inject constructor(
                     // Not used for forward geocoding
                 }
             }
-            geocodeSearch.setOnGeocodeSearchListener(listener)
-            geocodeSearch.getFromLocationNameAsyn(query)
+            localSearch.setOnGeocodeSearchListener(listener)
+            localSearch.getFromLocationNameAsyn(query)
 
             continuation.invokeOnCancellation {
-                // GeocodeSearch doesn't have a cancel method, but we can detach listener
-                geocodeSearch.setOnGeocodeSearchListener(null)
+                localSearch.setOnGeocodeSearchListener(null)
             }
         }
     }

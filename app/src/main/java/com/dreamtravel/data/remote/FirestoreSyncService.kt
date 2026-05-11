@@ -19,9 +19,6 @@ class FirestoreSyncService @Inject constructor(
 
     // ─── Places ──────────────────────────────────────────────
 
-    /**
-     * @return `true` if the sync succeeded, `false` otherwise.
-     */
     suspend fun syncPlaceToFirestore(place: Place): Boolean {
         val fs = firestore ?: return false
         return try {
@@ -47,9 +44,6 @@ class FirestoreSyncService @Inject constructor(
         }
     }
 
-    /**
-     * @return `true` if the sync succeeded, `false` otherwise.
-     */
     suspend fun deletePlaceFromFirestore(placeId: String): Boolean {
         val fs = firestore ?: return false
         return try {
@@ -69,10 +63,6 @@ class FirestoreSyncService @Inject constructor(
         val todos: List<Todo>
     )
 
-    /**
-     * Pulls all places and todos for the current user from Firestore.
-     * Returns null on failure; caller should merge into Room using updatedAt comparison.
-     */
     suspend fun pullCloudData(): CloudSnapshot? {
         val fs = firestore ?: return null
         return try {
@@ -104,17 +94,26 @@ class FirestoreSyncService @Inject constructor(
 
             val todos = todosSnapshot.documents.mapNotNull { doc ->
                 try {
+                    val statusStr = doc.getString("status") ?: "PENDING"
                     Todo(
                         id = doc.id,
                         placeId = doc.getString("placeId") ?: return@mapNotNull null,
                         title = doc.getString("title") ?: "",
                         notes = doc.getString("notes") ?: "",
-                        status = TodoStatus.from(doc.getString("status") ?: "PENDING"),
+                        status = TodoStatus.from(statusStr),
                         remindIntervalMinutes = doc.getLong("remindIntervalMinutes")?.toInt() ?: 1440,
                         remindCount = doc.getLong("remindCount")?.toInt() ?: 0,
                         createdAt = doc.getLong("createdAt") ?: System.currentTimeMillis(),
                         completedAt = doc.getLong("completedAt"),
-                        updatedAt = doc.getLong("updatedAt") ?: 0L
+                        updatedAt = doc.getLong("updatedAt") ?: 0L,
+                        provinceCode = doc.getString("provinceCode")?.takeIf { it.isNotEmpty() },
+                        provinceName = doc.getString("provinceName")?.takeIf { it.isNotEmpty() },
+                        cityCode = doc.getString("cityCode")?.takeIf { it.isNotEmpty() },
+                        cityName = doc.getString("cityName")?.takeIf { it.isNotEmpty() },
+                        districtCode = doc.getString("districtCode")?.takeIf { it.isNotEmpty() },
+                        districtName = doc.getString("districtName")?.takeIf { it.isNotEmpty() },
+                        formattedAddress = doc.getString("formattedAddress")?.takeIf { it.isNotEmpty() },
+                        color = doc.getString("color")?.takeIf { it.isNotEmpty() }
                     )
                 } catch (_: Exception) { null }
             }
@@ -128,13 +127,10 @@ class FirestoreSyncService @Inject constructor(
 
     // ─── Todos ───────────────────────────────────────────────
 
-    /**
-     * @return `true` if the sync succeeded, `false` otherwise.
-     */
     suspend fun syncTodoToFirestore(todo: Todo): Boolean {
         val fs = firestore ?: return false
         return try {
-            val data = mapOf(
+            val data = mutableMapOf<String, Any>(
                 "userId" to userId(),
                 "placeId" to todo.placeId,
                 "title" to todo.title,
@@ -143,9 +139,18 @@ class FirestoreSyncService @Inject constructor(
                 "remindIntervalMinutes" to todo.remindIntervalMinutes,
                 "remindCount" to todo.remindCount,
                 "createdAt" to todo.createdAt,
-                "completedAt" to todo.completedAt,
-                "updatedAt" to todo.updatedAt
+                "updatedAt" to todo.updatedAt,
+                "provinceCode" to (todo.provinceCode ?: ""),
+                "provinceName" to (todo.provinceName ?: ""),
+                "cityCode" to (todo.cityCode ?: ""),
+                "cityName" to (todo.cityName ?: ""),
+                "districtCode" to (todo.districtCode ?: ""),
+                "districtName" to (todo.districtName ?: ""),
+                "formattedAddress" to (todo.formattedAddress ?: ""),
+                "color" to (todo.color ?: "")
             )
+            // Firestore SDK 不接受 null 值，completedAt 为 null 时跳过该字段
+            todo.completedAt?.let { data["completedAt"] = it }
             fs.collection("todos")
                 .document(todo.id)
                 .set(data)
@@ -157,9 +162,6 @@ class FirestoreSyncService @Inject constructor(
         }
     }
 
-    /**
-     * @return `true` if the sync succeeded, `false` otherwise.
-     */
     suspend fun deleteTodoFromFirestore(todoId: String): Boolean {
         val fs = firestore ?: return false
         return try {

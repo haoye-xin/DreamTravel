@@ -19,12 +19,19 @@ import com.amap.api.maps.model.CameraPosition
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.LatLngBounds
 import com.amap.api.maps.model.MarkerOptions
+import com.amap.api.services.core.AMapException
+import com.amap.api.services.core.LatLonPoint
+import com.amap.api.services.geocoder.GeocodeSearch
+import com.amap.api.services.geocoder.RegeocodeQuery
 import com.dreamtravel.R
 import com.dreamtravel.data.model.Place
 import com.dreamtravel.databinding.FragmentMapBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.math.sqrt
+import kotlin.coroutines.resume
 
 @AndroidEntryPoint
 class MapFragment : Fragment(R.layout.fragment_map) {
@@ -43,7 +50,9 @@ class MapFragment : Fragment(R.layout.fragment_map) {
             enableMyLocation()
             loadMyLocation()
         } else {
-            Toast.makeText(requireContext(), "需要位置权限才能显示当前位置", Toast.LENGTH_SHORT).show()
+            context?.let { ctx ->
+                Toast.makeText(ctx, "需要位置权限才能显示当前位置", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -113,6 +122,10 @@ class MapFragment : Fragment(R.layout.fragment_map) {
             }
         }
 
+        map.setOnMapLongClickListener { latLng ->
+            addPlaceFromLocation(latLng)
+        }
+
         map.setOnCameraChangeListener(object : AMap.OnCameraChangeListener {
             override fun onCameraChange(position: CameraPosition?) {}
             override fun onCameraChangeFinish(position: CameraPosition?) {
@@ -123,6 +136,45 @@ class MapFragment : Fragment(R.layout.fragment_map) {
                 }
             }
         })
+    }
+
+    private fun addPlaceFromLocation(latLng: LatLng) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val result = reverseGeocode(latLng.latitude, latLng.longitude)
+            val bundle = Bundle().apply {
+                putString("prefillCity", result?.first ?: "")
+                putString("prefillCityCode", result?.second ?: "")
+                putFloat("prefillLat", latLng.latitude.toFloat())
+                putFloat("prefillLng", latLng.longitude.toFloat())
+            }
+            findNavController().navigate(R.id.action_map_to_addPlace, bundle)
+        }
+    }
+
+    private suspend fun reverseGeocode(lat: Double, lng: Double): Pair<String?, String?>? {
+        return withTimeoutOrNull(10_000L) {
+            suspendCancellableCoroutine { cont ->
+            val localGeocodeSearch = GeocodeSearch(requireContext())
+            val query = RegeocodeQuery(LatLonPoint(lat, lng), 200f, GeocodeSearch.AMAP)
+            val listener = object : com.amap.api.services.geocoder.GeocodeSearch.OnGeocodeSearchListener {
+                override fun onGeocodeSearched(result: com.amap.api.services.geocoder.GeocodeResult?, errorCode: Int) {}
+                override fun onRegeocodeSearched(result: com.amap.api.services.geocoder.RegeocodeResult?, errorCode: Int) {
+                    if (cont.isCancelled) return
+                    if (errorCode == AMapException.CODE_AMAP_SUCCESS && result?.regeocodeAddress != null) {
+                        val addr = result.regeocodeAddress
+                        val name = addr.city?.ifBlank { addr.district } ?: addr.formatAddress
+                        val code = addr.cityCode?.takeIf { c -> c.isNotBlank() }
+                        cont.resume(Pair(name, code))
+                    } else {
+                        cont.resume(null)
+                    }
+                }
+            }
+            localGeocodeSearch.setOnGeocodeSearchListener(listener)
+            localGeocodeSearch.getFromLocationAsyn(query)
+            cont.invokeOnCancellation { localGeocodeSearch.setOnGeocodeSearchListener(null) }
+            }
+        }
     }
 
     // ── Places + markers ───────────────────────────────────────────

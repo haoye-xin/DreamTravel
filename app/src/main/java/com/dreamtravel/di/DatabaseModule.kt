@@ -25,6 +25,8 @@ object DatabaseModule {
             AppDatabase::class.java,
             "dream_travel.db"
         )
+            .addMigrations(AppDatabase.MIGRATION_1_4, AppDatabase.MIGRATION_2_4)
+            // ⚠️ 仅在开发阶段使用，正式发布前应移除以防数据丢失
             .fallbackToDestructiveMigration()
             .build()
     }
